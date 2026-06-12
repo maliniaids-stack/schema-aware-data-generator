@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Data Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=6">
+</head>
+
+<body>
+    <div class="app-container">
+
+        <div class="pane input-pane">
+            <header style="margin-bottom: 2.5rem;">
+                <h1 style="margin-bottom: 0;">Test Data Generator</h1>
+            </header>
+
+            <form id="generate-form">
+                <div class="form-group">
+
+                    <textarea id="ddl-input" placeholder="CREATE TABLE users ( ... );"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group row-count">
+                        <label for="rows-input">Rows per table</label>
+                        <input type="number" id="rows-input" value="10" min="1" max="1000">
+                    </div>
+                    <button type="submit" id="generate-btn">
+                        <span class="btn-text">Generate Data</span>
+                        <span class="spinner hidden"></span>
+                    </button>
+                </div>
+            </form>
+            <div id="error-message" class="error hidden"></div>
+
+            <div class="token-counter" id="token-counter" title="Total LLM Tokens Used">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-coins">
+                    <circle cx="8" cy="8" r="6" />
+                    <path d="M18.09 10.37A6 6 0 1 1 10.34 18" />
+                    <path d="M7 6h1v4" />
+                    <path d="m16.71 13.88.7.71-2.82 2.82" />
+                </svg>
+                <span><span id="token-count-value">0</span> tokens are consumed</span>
+            </div>
+        </div>
+
+        <!-- Right Pane: Results -->
+        <div class="pane results-pane">
+            <div class="results-header">
+                <h2>Generated Output</h2>
+                <div class="tabs" id="tabs">
+                    <!-- Tabs injected via JS -->
+                </div>
+            </div>
+
+            <div class="results-content" id="results-content">
+                <div class="empty-state">
+                    <p>Paste your schema and click generate.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js?v=2"></script>
+</body>
+
+</html>

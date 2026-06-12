@@ -1,0 +1,5 @@
+flask
+faker
+pandas
+sqlparse
+flask-cors
