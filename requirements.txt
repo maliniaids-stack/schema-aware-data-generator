@@ -1,5 +1,6 @@
-flask
-faker
-pandas
-sqlparse
-flask-cors
+flask>=3.0.0
+flask-cors>=4.0.0
+groq>=0.9.0
+sqlglot>=25.0.0
+faker>=25.0.0
+python-dotenv>=1.0.0

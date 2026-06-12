@@ -1,0 +1,30 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments and Virtual Envs
+.venv/
+venv/
+ENV/
+env/
+
+# Sensitive API Keys & Configurations
+backend/.env
+
+# Local Cache
+backend/mapper_cache.json
+mapper_cache.json
+
+# Generated Output / Exports
+output/
+exports/
+
+# Editor / IDE Configs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp

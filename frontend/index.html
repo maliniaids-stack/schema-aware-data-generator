@@ -1,76 +1,253 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Data Generator</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=6">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DataGenAI — Schema-Aware Test Data Generator</title>
+  <meta name="description" content="Drop your SQL DDL and get production-grade relational test data instantly. Powered by Groq LLaMA 3.1 and Faker." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
-    <div class="app-container">
 
-        <div class="pane input-pane">
-            <header style="margin-bottom: 2.5rem;">
-                <h1 style="margin-bottom: 0;">Test Data Generator</h1>
-            </header>
-
-            <form id="generate-form">
-                <div class="form-group">
-
-                    <textarea id="ddl-input" placeholder="CREATE TABLE users ( ... );"></textarea>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group row-count">
-                        <label for="rows-input">Rows per table</label>
-                        <input type="number" id="rows-input" value="10" min="1" max="1000">
-                    </div>
-                    <button type="submit" id="generate-btn">
-                        <span class="btn-text">Generate Data</span>
-                        <span class="spinner hidden"></span>
-                    </button>
-                </div>
-            </form>
-            <div id="error-message" class="error hidden"></div>
-
-            <div class="token-counter" id="token-counter" title="Total LLM Tokens Used">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-coins">
-                    <circle cx="8" cy="8" r="6" />
-                    <path d="M18.09 10.37A6 6 0 1 1 10.34 18" />
-                    <path d="M7 6h1v4" />
-                    <path d="m16.71 13.88.7.71-2.82 2.82" />
-                </svg>
-                <span><span id="token-count-value">0</span> tokens are consumed</span>
-            </div>
+  <!-- ─── Header ─────────────────────────────────────────────────────── -->
+  <header class="site-header" id="siteHeader">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon-wrap">
+          <svg class="logo-hex" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16 2L28 9V23L16 30L4 23V9L16 2Z" fill="url(#hexGrad)" />
+            <path d="M11 12l5 3 5-3M16 15v6" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="hexGrad" x1="4" y1="2" x2="28" y2="30" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#6366f1"/>
+                <stop offset="1" stop-color="#8b5cf6"/>
+              </linearGradient>
+            </defs>
+          </svg>
         </div>
-
-        <!-- Right Pane: Results -->
-        <div class="pane results-pane">
-            <div class="results-header">
-                <h2>Generated Output</h2>
-                <div class="tabs" id="tabs">
-                    <!-- Tabs injected via JS -->
-                </div>
-            </div>
-
-            <div class="results-content" id="results-content">
-                <div class="empty-state">
-                    <p>Paste your schema and click generate.</p>
-                </div>
-            </div>
+        <span class="logo-text">DataGen<em>AI</em></span>
+        <span class="logo-badge">
+          <span class="badge-dot"></span>
+          Llama 3.1
+        </span>
+      </div>
+      <nav class="header-nav">
+        <div class="cache-pill" id="cachePill">
+          <span class="cache-icon">⬡</span>
+          <span id="cacheLabel">Cache: —</span>
         </div>
+        <button class="btn-ghost" id="clearCacheBtn" title="Clear mapper cache">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M2 4h12v1.5H2zM4 4V2.5A1.5 1.5 0 015.5 1h5A1.5 1.5 0 0112 2.5V4M6 7v5M10 7v5M3.5 5.5l1 9A1 1 0 005.5 15h5a1 1 0 001-.9l1-9"/></svg>
+          Clear Cache
+        </button>
+      </nav>
     </div>
+  </header>
 
-    <script src="script.js?v=2"></script>
+  <!-- ─── Hero ───────────────────────────────────────────────────────── -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-inner">
+      <div class="hero-eyebrow">
+        <span class="eyebrow-dot"></span>
+        DDL → Relational Test Data
+      </div>
+      <h1 class="hero-title">
+        Drop your schema.<br />
+        <span class="gradient-text">Get production-grade data.</span>
+      </h1>
+      <p class="hero-sub">
+        Paste any SQL DDL. Groq's LLaMA 3.1 maps each column to the best Faker generator,
+        respects foreign keys, and returns INSERT statements + CSV in seconds.
+      </p>
+      <div class="hero-chips">
+        <span class="chip"><span class="chip-icon">🔗</span> FK integrity</span>
+        <span class="chip"><span class="chip-icon">⟳</span> Topological sort</span>
+        <span class="chip"><span class="chip-icon">⚡</span> SHA-256 cache</span>
+        <span class="chip"><span class="chip-icon">📦</span> ZIP export</span>
+        <span class="chip"><span class="chip-icon">🛡</span> Safe Faker eval</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Workspace ──────────────────────────────────────────────────── -->
+  <main class="workspace" id="workspace">
+
+    <!-- Left: Input Panel -->
+    <section class="panel panel-input" id="inputPanel">
+      <div class="panel-header">
+        <div class="panel-title-row">
+          <span class="panel-title">SQL DDL Input</span>
+          <span class="panel-lang-badge">SQL</span>
+        </div>
+        <div class="panel-header-actions">
+          <button class="btn-ghost btn-xs" id="loadExampleBtn">Load example</button>
+          <button class="btn-ghost btn-xs" id="clearEditorBtn">Clear</button>
+        </div>
+      </div>
+
+      <div class="editor-wrap" id="editorWrap">
+        <div class="editor-gutter" id="editorGutter"></div>
+        <textarea
+          id="ddlInput"
+          class="ddl-editor"
+          spellcheck="false"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          placeholder="CREATE TABLE users (
+  id         INT PRIMARY KEY,
+  email      VARCHAR(255) NOT NULL,
+  name       VARCHAR(100),
+  created_at TIMESTAMP
+);
+
+CREATE TABLE orders (
+  id       INT PRIMARY KEY,
+  user_id  INT NOT NULL,
+  total    DECIMAL(10,2),
+  status   VARCHAR(20),
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);"
+        ></textarea>
+      </div>
+
+      <div class="input-controls">
+        <div class="row-control">
+          <label for="rowCount">Rows per table</label>
+          <div class="row-stepper">
+            <button class="step-btn" id="rowMinus" aria-label="Decrease rows">−</button>
+            <input type="number" id="rowCount" value="20" min="1" max="500" />
+            <button class="step-btn" id="rowPlus" aria-label="Increase rows">+</button>
+          </div>
+        </div>
+        <button class="btn-primary" id="generateBtn">
+          <svg class="btn-icon-svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 1a7 7 0 100 14A7 7 0 008 1zM6.5 5.5l4 2.5-4 2.5V5.5z"/>
+          </svg>
+          Generate Data
+        </button>
+      </div>
+
+      <!-- Meta row -->
+      <div class="meta-row" id="metaRow" style="display:none">
+        <div class="meta-item">
+          <span class="meta-label">Tokens</span>
+          <span class="meta-val" id="tokensUsed">—</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Tables</span>
+          <span class="meta-val" id="tableCount">—</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Source</span>
+          <span class="meta-val" id="cacheHit">—</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right: Output Panel -->
+    <section class="panel panel-output" id="outputPanel">
+
+      <!-- Empty state -->
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon-wrap">
+          <svg class="empty-hex" viewBox="0 0 64 64" fill="none">
+            <path d="M32 4L58 18V46L32 60L6 46V18L32 4Z" stroke="url(#emptyGrad)" stroke-width="2" fill="none"/>
+            <path d="M22 26l10 6 10-6M32 32v10" stroke="url(#emptyGrad)" stroke-width="2" stroke-linecap="round"/>
+            <defs>
+              <linearGradient id="emptyGrad" x1="6" y1="4" x2="58" y2="60" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#6366f1" stop-opacity="0.5"/>
+                <stop offset="1" stop-color="#8b5cf6" stop-opacity="0.5"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <p class="empty-title">Awaiting your schema</p>
+        <p class="empty-sub">Paste your SQL DDL on the left and click <strong>Generate Data</strong>.</p>
+      </div>
+
+      <!-- Loading state -->
+      <div class="loading-state" id="loadingState" style="display:none">
+        <div class="loading-pipeline">
+          <div class="pipeline-step" id="pStep1" data-step="1">
+            <div class="step-orb"></div>
+            <span class="step-label">Parse DDL</span>
+          </div>
+          <div class="pipeline-connector"></div>
+          <div class="pipeline-step" id="pStep2" data-step="2">
+            <div class="step-orb"></div>
+            <span class="step-label">Map Columns</span>
+          </div>
+          <div class="pipeline-connector"></div>
+          <div class="pipeline-step" id="pStep3" data-step="3">
+            <div class="step-orb"></div>
+            <span class="step-label">Resolve FKs</span>
+          </div>
+          <div class="pipeline-connector"></div>
+          <div class="pipeline-step" id="pStep4" data-step="4">
+            <div class="step-orb"></div>
+            <span class="step-label">Generate Data</span>
+          </div>
+        </div>
+        <p class="loading-label" id="loadingLabel">Parsing schema…</p>
+      </div>
+
+      <!-- Error state -->
+      <div class="error-state" id="errorState" style="display:none">
+        <div class="error-icon-wrap">⚠</div>
+        <p class="error-title">Generation Failed</p>
+        <p class="error-msg" id="errorMessage">Something went wrong.</p>
+        <button class="btn-ghost btn-sm" id="dismissError">Dismiss</button>
+      </div>
+
+      <!-- Results -->
+      <div class="results" id="results" style="display:none">
+        <div class="results-header">
+          <div class="results-title-row">
+            <h2 class="results-title">Generated Output</h2>
+            <span class="results-badge" id="resultsBadge">0 tables</span>
+          </div>
+          <div class="results-actions">
+            <button class="btn-outline btn-sm" id="copySeedBtn">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2h8a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V4a2 2 0 012-2zm0 1.5A.5.5 0 003.5 4v8a.5.5 0 00.5.5h8a.5.5 0 00.5-.5V4a.5.5 0 00-.5-.5H4z"/></svg>
+              Copy seed_all.sql
+            </button>
+            <button class="btn-primary btn-sm" id="downloadBtn">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M8 10.5L4.5 7H7V2h2v5h2.5L8 10.5zM2 13h12v1.5H2V13z"/></svg>
+              Download ZIP
+            </button>
+          </div>
+        </div>
+
+        <!-- Table tabs -->
+        <div class="tab-bar" id="tabBar" role="tablist"></div>
+
+        <!-- Seed all tab (special) -->
+        <div class="tab-content" id="tabContent"></div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- ─── Column Mapping Modal ────────────────────────────────────────── -->
+  <div class="modal-backdrop" id="mapModal" role="dialog" aria-modal="true" style="display:none">
+    <div class="modal" id="mapModalInner">
+      <div class="modal-header">
+        <span class="modal-title" id="mapModalTitle">Column Mapping</span>
+        <button class="modal-close" id="mapModalClose" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body" id="mapModalBody"></div>
+    </div>
+  </div>
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="script.js"></script>
 </body>
-
 </html>
